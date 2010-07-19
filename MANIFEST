@@ -1,5 +1,8 @@
 setup.py
+README.txt
+LICENSE.txt
 pyFWI/FWIFunctions.py
 pyFWI/FWIUnitTest.py
 pyFWI/__init__.py
 scripts/FWI.py
+
