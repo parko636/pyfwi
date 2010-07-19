@@ -5,19 +5,26 @@
 #FWI Functions:
 #
 #FFMC - takes temperature, relative humidity, wind speed, rain, and a previous FFMC value to produce the current FFMC value
+#      - FFMC(17,42,25,0,85) = 87.692980092774448
 #
 #DMC - takes temperature, relative humidity, rainfall, previous DMC value, latitude, and current month to produce the current DMC value
+#    - DMC(17,42,0,6,45.98,4) = 8.5450511359999997
 #
 #DC - takes temperature, rain, the previous DC value, latititude, and current month to produce the current DC value
+#   - DC(17,0,15,45.98,4) = 19.013999999999999
 #
 #ISI - takes the wind speed and current FFMC value to produce the current ISI value
+#    - ISI(25,87.692980092774448) = 10.853661073655068
 #
 #BUI - takes the current DMC and DC values to produce the current BUI value
+#    - BUI(8.5450511359999997,19.013999999999999) = 8.4904265358371838
 #
 #FWI - takes the current ISI and BUI values to produce the current BUI value
+#    - FWI(10.853661073655068,8.4904265358371838) = 10.096371392382368
 #
 #calcFWI - this function returns the current FWI value given all of the input values: 
-#              temperature, relative humidity, wind speed, rain, previous FFMC, DMC, and DC
+#              month, temperature, relative humidity, wind speed, rain, previous FFMC, DMC, DC, and latitude
+#        - calcFWI(4,17,42,25,0,85,6,15,45.98) = 10.096371392382368
 #
 # 
 #
@@ -26,18 +33,22 @@
 #All of these equations take the current DMC and DC values and return moisture content as a % value
 #
 #LawsonEq1 - DMC National Standard and Coastal B.C. CWH (2.5-4 cm)^2
+#          - LawsonEq1(8.5450511359999997)  = 250.7553985454235
 #
 #LawsonEq2 - Southern Interior B.C.3 (2-4 cm)^2
+#          - LawsonEq2(8.5450511359999997)  = 194.93023948344205
 #
 #LawsonEq3 - Southern Yukon - Pine/White Spruce
 #                             Feather moss, Sphagnum and Undifferentiated duff (2-4 cm)^2
+#          - LawsonEq3(8.5450511359999997)  = 442.82109267231488
 #
 #LawsonEq4 - Southern Yukon - Pine/White Spruce
 #                             Reindeer lichen (2-4 cm)^2
+#          - LawsonEq4(8.5450511359999997)  = 746.02210402093272
 #
 #LawsonEq5 - Southern Yukon - White Spruce
 #                             White spruce/feather moss (2-4 cm)^2
-
+#          - LawsonEq5(8.5450511359999997)  = 853.2397847094652
 
 
 import math,re,datetime
@@ -58,7 +69,9 @@ Parameters:
     WIND is the 12:00 LST wind speed in kph
     RAIN is the 24-hour accumulated rainfall in mm, calculated at 12:00 LST
     FFMCPrev is the previous day's FFMC
-'''
+
+    FFMC(17,42,25,0,85) = 87.692980092774448'''
+
     RH = min(100.0,RH)
     mo = 147.2 * (101.0 - FFMCPrev) / (59.5 + FFMCPrev)
 
@@ -115,7 +128,9 @@ Parameters:
     RAIN is the 24-hour accumulated rainfall in mm, calculated at 12:00 LST
     DMCPrev is the prevvious day's DMC
     Lat is the latitude in decimal degrees of the location for which calculations are being made
-    Month is the month of Year (1..12) for the current day's calculations.'''
+    Month is the month of Year (1..12) for the current day's calculations.
+
+    DMC(17,42,0,6,45.98,4) = 8.5450511359999997'''
 
     RH = min(100.0,RH)
     if RAIN > 1.5:
@@ -159,7 +174,9 @@ Parameters:
     RAIN is the 24-hour accumulated rainfall in mm, calculated at 12:00 LST
     DCPrev is the previous day's DC
     LAT is the latitude in decimal degrees of the location for which calculations are being made
-    MONTH is the month of Year (1..12) for the current day's calculations.'''
+    MONTH is the month of Year (1..12) for the current day's calculations.
+
+    DC(17,0,15,45.98,4) = 19.013999999999999'''
 
     if RAIN > 2.8:
         rd = 0.83 * RAIN - 1.27
@@ -192,7 +209,9 @@ def ISI(WIND,FFMC):
     '''Calculates today's Initial Spread Index
 Parameters:
     WIND is the 12:00 LST wind speed in kph
-    FFMC is the current day's FFMC'''
+    FFMC is the current day's FFMC
+
+    ISI(25,87.692980092774448) = 10.853661073655068'''
 
     fWIND = math.exp(0.05039 * WIND)
 
@@ -208,7 +227,9 @@ def BUI(DMC,DC):
     '''Calculates today's Buildup Index
 Parameters:
     DMC is the current day's Duff Moisture Code
-    DC is the current day's Drought Code'''
+    DC is the current day's Drought Code
+
+    BUI(8.5450511359999997,19.013999999999999) = 8.4904265358371838'''
 
     if DMC <= 0.4 * DC:
         U = 0.8 * DMC * DC / (DMC + 0.4 * DC)
@@ -224,7 +245,9 @@ def FWI(ISI, BUI):
     '''Calculates today's Fire Weather Index
 Paramteres:
     ISI is the current day's ISI
-    BUI is the current day's BUI'''
+    BUI is the current day's BUI
+
+    FWI(10.853661073655068,8.4904265358371838) = 10.096371392382368'''
     if BUI <= 80.0:
         fD = 0.626 * pow(BUI, 0.809) + 2.0
     else:
@@ -289,7 +312,9 @@ Parameters:
     FFMCPrev is the previous day's FFMC
     DMCPrev is the previous day's DCM
     DCPrev is the previous day's DC
-    LAT is the latitude in decimal degrees of the location for which calculations are being made'''
+    LAT is the latitude in decimal degrees of the location for which calculations are being made
+
+    calcFWI(4,17,42,25,0,85,6,15,45.98) = 10.096371392382368'''
 
     ffmc = FFMC(TEMP,RH,WIND,RAIN,FFMCPrev)
     dmc = DMC(TEMP,RH,RAIN,DMCPrev,LAT,MONTH)
@@ -311,7 +336,16 @@ This function assumes the dates are consecutive.
 
 The first line must contain the date format, latitude, ffmc, dmc, and dc values
 
-Each line thereafter must contain date, temperature, relative humidity, wind speed, and rain'''
+Each line thereafter must contain date, temperature, relative humidity, wind speed, and rain
+
+EX)
+%m/%d/%Y,45.979999999999997,85,6,15
+04/13/2000,17,42,25,0
+
+-->
+
+%m/%d/%Y,45.979999999999997,85,6,15
+04/13/2000,17,42,25,0,87.692980092774448,8.5450511359999997,19.013999999999999,10.853661073655068,8.4904265358371838,10.096371392382368'''
 
     csv = open(fileName, 'r')
 
@@ -378,7 +412,9 @@ def LawsonEq1(DMC):
 Linking DMC to Forest Floor Moisture Content in
 Coastal B.C., Southern Interior B.C. and Southern Yukon
 
-DMC National Standard and Coastal B.C. CWH (2.5-4 cm)^2'''
+DMC National Standard and Coastal B.C. CWH (2.5-4 cm)^2
+
+LawsonEq1(8.5450511359999997)  = 250.7553985454235'''
 
     return math.exp((DMC-244.7)/-43.4)+20.0
 
@@ -387,7 +423,9 @@ def LawsonEq2(DMC):
 Linking DMC to Forest Floor Moisture Content in
 Coastal B.C., Southern Interior B.C. and Southern Yukon
 
-Southern Interior B.C.3 (2-4 cm)^2'''
+Southern Interior B.C.3 (2-4 cm)^2
+
+LawsonEq2(8.5450511359999997)  = 194.93023948344205'''
     return math.exp((DMC-223.9)/-41.7)+20.0
 
 def LawsonEq3(DMC):
@@ -396,7 +434,9 @@ Linking DMC to Forest Floor Moisture Content in
 Coastal B.C., Southern Interior B.C. and Southern Yukon
 
 Southern Yukon - Pine/White Spruce
-Feather moss, Sphagnum and Undifferentiated duff (2-4 cm)^2'''
+Feather moss, Sphagnum and Undifferentiated duff (2-4 cm)^2
+
+LawsonEq3(8.5450511359999997)  = 442.82109267231488'''
     return math.exp((DMC-157.3)/-24.6)+20
 
 def LawsonEq4(DMC):
@@ -405,7 +445,9 @@ Linking DMC to Forest Floor Moisture Content in
 Coastal B.C., Southern Interior B.C. and Southern Yukon
 
 Southern Yukon - Pine/White Spruce
-Reindeer lichen (2-4 cm)^2'''
+Reindeer lichen (2-4 cm)^2
+
+LawsonEq4(8.5450511359999997)  = 746.02210402093272'''
     return math.exp((DMC-106.7)/-14.9)+20.0
 
 def LawsonEq5(DMC):
@@ -414,7 +456,9 @@ Linking DMC to Forest Floor Moisture Content in
 Coastal B.C., Southern Interior B.C. and Southern Yukon
 
 Southern Yukon - White Spruce
-White spruce/feather moss (2-4 cm)^2'''
+White spruce/feather moss (2-4 cm)^2
+
+LawsonEq5(8.5450511359999997)  = 853.2397847094652'''
 
     return math.exp((DMC-149.6)/-20.9)
 
