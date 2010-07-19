@@ -10,4 +10,5 @@ setup(name= "pyFWI",
       description="Functions for computing FWI parameters and DMC % moisture",
       packages = ['pyFWI'],
       package_dir = {"pyFWI": "pyFWI"},
+      scripts = ["scripts/FWI.py"]
       )
