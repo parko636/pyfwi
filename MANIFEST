@@ -1,0 +1,4 @@
+setup.py
+pyFWI/FWIFunctions.py
+pyFWI/FWIUnitTest.py
+pyFWI/__init__.py
