@@ -37,12 +37,15 @@ EX)
             #read start parameters
             if rowNum == 0:
                 format = stuff[0]
-                first=[eval(x.replace('\r','').replace('\n','')) for x in stuff[1:]]
+                if (format[0]=='"' and format[-1]=='"') or (format[0]=="'" and format[-1]=="'"):
+                    format = format[1:-1]
+                first=[eval(x.replace('\r','').replace('\n','')) for x in stuff[1:5]]
                 rowNum+=1
 
             #Read inputs
             else:
                 results += [[datetime.datetime.strptime(stuff[0],format)]+[eval(x.replace('\r','').replace('\n','')) for x in stuff[1:5]]]
+        
 
     rowNum = 0;
 
