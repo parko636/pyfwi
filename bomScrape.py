@@ -8,6 +8,8 @@ import pyFWI.FWIFunctions as FWI
 import sqlite3
 import os
 
+#
+
 today = date.today()
 yesterday = today + timedelta(days=-1)
 
