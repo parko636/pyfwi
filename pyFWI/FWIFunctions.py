@@ -380,6 +380,26 @@ LawsonEq5(8.5450511359999997)  = 853.2397847094652'''
 
     return math.exp((DMC-149.6)/-20.9)
 
+def simpFDI(temp, humid, wind, df):
+    """
+        Description
+        -----------
+                Calculates the Macarthur FDI via a simple formula.
+
+        Parameters
+        ----------
+                temp  : float
+                humid : float
+                wind  : float
+                df    : integer
+
+        Returns
+        -------
+                FDI : float
+    """
+    return 2*(math.exp((0.987*math.log(df+0.001))-.45-(.0345*humid)+(.0338*temp)+(.0234*wind))) # simply calculated FDI
+
+
 
 
 
