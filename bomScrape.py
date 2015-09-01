@@ -101,6 +101,20 @@ def ratingFWI(FWI):
 
 
 def initDatabase():
+    """
+        Decription
+        ----------
+                Will create the SQL table of observations if an existing copy 
+                is not found.
+                
+        Parameters
+        ----------
+                None.
+                
+        Returns
+        -------
+                None however may create a SQL table.
+    """
     cur.execute("CREATE TABLE observations ( date STRING, temp FLOAT, humid FLOAT, wind FLOAT, rain FLOAT )") # makes table of assumed requirments
     cur.execute("CREATE TABLE calculations ( date STRING, ffmc FLOAT, dmc FLOAT, dc FLOAT, isi FLOAT, bui FLOAT, fwi FLOAT )") # makes table of assumed requirments
     cur.execute("INSERT INTO calculations VALUES ('%s', 60, 25, 250, 0, 0, 0)"%(yesterday.strftime('%Y-%m-%d'))) # initial values
@@ -268,6 +282,11 @@ dc = FWI.DC(temp, rain, c[2], -33.60, today.month)
 isi = FWI.ISI(wind, ffmc)
 bui = FWI.BUI(dmc, dc)
 fwi = FWI.FWI(isi, bui)
+df = getDF()
+FDI = simpFDI(temp, humd, wind, df)
+
+#==============================================================================
+
 cur.execute("INSERT INTO calculations VALUES ('%s', %f, %f, %f, %f, %f, %f)"%(today.strftime('%Y-%m-%d'), ffmc, dmc, dc, isi, bui, fwi))
 conn.commit()
 print "FFMC : %.2f"%ffmc
@@ -276,11 +295,8 @@ print "DC   : %.2f"%dc
 print "ISI  : %.2f"%isi
 print "BUI  : %.2f"%bui
 print "FWI  : %.2f %s"%(fwi, ratingFWI(fwi))
-df = getDF()
 print "DF   : %.2f"%df
-FDI = simpFDI(temp, humd, wind, df)
 print "FDI  : %.2f %s"%(FDI, ratingFDI(FDI))
 print "\r\n-----------------------------\r\n"
-
 
 raw_input('Holding')
