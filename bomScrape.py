@@ -1,7 +1,7 @@
 __author__ = 'Alex Parkinson, Matt van Breugel'
 #==============================================================================
 global version
-version = 'v0.2'
+version = 'v0.3'
 
 print('>>> FIRE WEATHER <<<').center(80, ' ')
 
