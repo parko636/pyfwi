@@ -14,7 +14,8 @@ import pyFWI.FWIFunctions as FWI
 import sqlite3
 import os
 import numpy as np
-from time import sleep
+import requests as rq
+from bs4 import BeautifulSoup as bs
 #==============================================================================
 def simpFDI(temp, humd, wind, df):
     """
@@ -124,6 +125,19 @@ def is_dst(zonename):
 
 def searchTimes():
     """
+        Description
+        -----------
+                Something to do with midday.
+                
+        Parameters
+        ----------
+                None.
+        
+        Returns
+        -------
+                search_now : string
+                search_9am : string
+                search_yesterday : string
     """
     print today.strftime('%Y-%m-%d')
     search = today.strftime("%d") + '/'
@@ -133,10 +147,78 @@ def searchTimes():
         search_yesterday = search_yesterday + '11:00am'
     else:
         search_now = search + '12:00pm'
-    #    search_now = search + '06:00am'
+#        search_now = search + '06:00am'
         search_yesterday = search_yesterday + '12:00pm'
     search_9am = date.today().strftime("%d") + '/09:00am'
     return search_now, search_9am, search_yesterday
+
+def buildTable(text): # for use in getDF()
+    """
+        Description
+        -----------
+                Parse out the rows of an HTML table.
+        
+        Parameters
+        ----------
+                text : soup
+                
+        Returns
+        -------
+                table : list
+    """
+    "Parse out the rows of an HTML table."
+    soup = text
+    return [ [ col.renderContents() for col in row.findAll('td') ]
+             for row in soup.find('table').find_all('tr') ]
+
+def findRow(table): # for use in getDF()
+    """
+        Description
+        -----------
+                Finds the position of RICHMOND AP in the table.
+        
+        Parameters
+        ----------
+                table : list
+                
+        Returns
+        -------
+                row : int
+                
+        Notes
+        -----
+                table[155][0] = RICHMOND AP
+                table[155][2] = df today
+                table[155][5] = df yesterday
+    """
+    for row, lst in enumerate(table):
+        for col in lst:
+            if 'RICHMOND AP' in col:
+                return row
+def getDF():
+    """
+        Description
+        -----------
+                Fetched the drought factor from the BOM. 
+                Note that this required authentication.
+                
+        Parameters
+        ----------
+                None.
+        
+        Returns
+        -------
+                df : float
+                
+        Notes
+        -----
+                URL  : http://reg.bom.gov.au/fwo/reg/IDN65053.html
+                user : bomw0107
+                pass : 50cLampe
+    """
+    r = rq.get('http://reg.bom.gov.au/fwo/reg/IDN65053.html', auth=('bomw0107', '50cLampe'))
+    soup = bs(r.text)
+    return float(buildTable(soup)[findRow(buildTable(soup))][2])
 
 #==============================================================================
 
@@ -194,11 +276,11 @@ print "DC   : %.2f"%dc
 print "ISI  : %.2f"%isi
 print "BUI  : %.2f"%bui
 print "FWI  : %.2f %s"%(fwi, ratingFWI(fwi))
-df = 5 # no remote scraping yet
+df = getDF()
+print "DF   : %.2f"%df
 FDI = simpFDI(temp, humd, wind, df)
 print "FDI  : %.2f %s"%(FDI, ratingFDI(FDI))
 print "\r\n-----------------------------\r\n"
 
-#sleep(10)
 
-#raw_input('Holding')
+raw_input('Holding')
