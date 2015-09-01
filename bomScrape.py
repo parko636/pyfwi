@@ -33,6 +33,10 @@ def simpFDI(temp, humd, wind, df):
         Returns
         -------
                 FDI : float
+        
+        Notes
+        -----
+                Formula from the CFA 4WD Club: http://www.cfa4wd.org/information/Forest_FDI.htm
     """
     return 2*(np.exp((0.987*np.log(df+0.001))-.45-(.0345*humd)+(.0338*temp)+(.0234*wind))) # simply calculated FDI
 
