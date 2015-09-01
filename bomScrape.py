@@ -310,4 +310,4 @@ print "DF   : %.2f"%df
 print "FDI  : %.2f %s"%(FDI, ratingFDI(FDI))
 print "\r\n-----------------------------\r\n"
 
-raw_input('Holding')
+#raw_input('Holding')
