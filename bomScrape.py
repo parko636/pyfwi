@@ -104,7 +104,7 @@ def ratingFWI(FWI):
 #conn = sqlite3.connect(os.path.join('.', weatherLog.db)) # added 'r' - makes the file if it is not there?
 
 
-def initDatabase():
+def initDatabase(yesterday):
     """
         Decription
         ----------
@@ -119,23 +119,30 @@ def initDatabase():
         -------
                 None however may create a SQL table.
     """
+    
+    conn = sqlite3.connect(r".\weatherLog.db") # added 'r' - makes the file if it is not there?
+    cur = conn.cursor()
+
     cur.execute("CREATE TABLE observations ( date STRING, temp FLOAT, humid FLOAT, wind FLOAT, rain FLOAT )") # makes table of assumed requirments
     cur.execute("CREATE TABLE calculations ( date STRING, ffmc FLOAT, dmc FLOAT, dc FLOAT, isi FLOAT, bui FLOAT, fwi FLOAT )") # makes table of assumed requirments
     cur.execute("INSERT INTO calculations VALUES ('%s', 60, 25, 250, 0, 0, 0)"%(yesterday.strftime('%Y-%m-%d'))) # initial values
+    conn.commit()
+    
+    conn.close()
 
 def is_dst(zonename):
     """
         Description
         -----------
-                Hmm...
+                Returns TRUE if zonename is in DST. False otherwise.
                 
         Parameters
         ----------
-                zonename : ???
+                zonename : string
         
         Returns
         -------
-                ???
+                bool
     """
     tz = pytz.timezone(zonename)
     now = pytz.utc.localize(datetime.utcnow())
@@ -145,7 +152,7 @@ def searchTimes():
     """
         Description
         -----------
-                Something to do with midday.
+                Searches through the document for midday.
                 
         Parameters
         ----------
@@ -244,11 +251,11 @@ today = date.today()
 yesterday = today + timedelta(days=-1)
 
 if not os.path.exists("./weatherLog.db"):
-    initDatabase()
-    
+    initDatabase(yesterday)
+
 conn = sqlite3.connect(r".\weatherLog.db") # added 'r' - makes the file if it is not there?
 cur = conn.cursor()
- 
+
 #==============================================================================
 
 print 'BOM/RICHMOND_AP' 
