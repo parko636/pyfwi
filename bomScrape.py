@@ -1,5 +1,8 @@
 __author__ = 'AP+MVBedit'
 
+global version
+version = 'v0.1'
+
 import urllib2
 from lxml import html
 from datetime import datetime, date, timedelta
@@ -7,6 +10,26 @@ import pytz
 import pyFWI.FWIFunctions as FWI
 import sqlite3
 import os
+import numpy as np
+
+def simpFDI(temp, humid, wind, df):
+    """
+        Description
+        -----------
+                Calculates the FDI via a simple formula.
+                
+        Parameters
+        ----------
+                temp  : float
+                humid : float
+                wind  : float
+                df    : integer
+        
+        Returns
+        -------
+                FDI : float
+    """
+    return 2*(np.exp((0.987*np.log(df+0.001))-.45-(.0345*humid)+(.0338*temp)+(.0234*wind))) # simply calculated FDI
 
 today = date.today()
 yesterday = today + timedelta(days=-1)
@@ -20,6 +43,19 @@ cur = conn.cursor()
 #cur.execute("INSERT INTO calculations VALUES ('%s', 60, 25, 250, 0, 0, 0)"%(yesterday.strftime('%Y-%m-%d'))) # init values
 
 def is_dst(zonename):
+    """
+        Description
+        -----------
+                Hmm...
+                
+        Parameters
+        ----------
+                zonename : ???
+        
+        Returns
+        -------
+                ???
+    """
     tz = pytz.timezone(zonename)
     now = pytz.utc.localize(datetime.utcnow())
     return now.astimezone(tz).dst() != timedelta(0)
@@ -71,10 +107,12 @@ bui = FWI.BUI(dmc, dc)
 fwi = FWI.FWI(isi, bui)
 cur.execute("INSERT INTO calculations VALUES ('%s', %f, %f, %f, %f, %f, %f)"%(today.strftime('%Y-%m-%d'), ffmc, dmc, dc, isi, bui, fwi))
 conn.commit()
-print "FFMC: %.2f"%ffmc
-print "DMC : %.2f"%dmc
-print "DC  : %.2f"%dc
-print "ISI : %.2f"%isi
-print "BUI : %.2f"%bui
-print "FWI : %.2f"%fwi
+print "FFMC : %.2f"%ffmc
+print "DMC  : %.2f"%dmc
+print "DC   : %.2f"%dc
+print "ISI  : %.2f"%isi
+print "BUI  : %.2f"%bui
+print "FWI  : %.2f"%fwi
+df = 5 # no remote scraping yet
+print "FDI  : %.2f"%simpFDI(temp, humd, wind, df)
 print "\r\n-----------------------------\r\n"
